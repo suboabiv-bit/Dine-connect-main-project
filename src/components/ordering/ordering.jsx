@@ -1,0 +1,252 @@
+
+import { useEffect, useState } from "react";
+import "./ordering.css";
+
+function TenantOrdering({ restaurantSlug, table, onBack }) {
+
+function TenantOrdering({ restaurantSlug, table, onBack }) {
+  const [restaurant, setRestaurant] = useState(null);
+  const [menu, setMenu] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [error, setError] = useState("");
+  const [receipt, setReceipt] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [failedImages, setFailedImages] = useState({});
+
+  useEffect(() => {
+    let active = true;
+
+    fetch(`/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/menu`)
+      .then(async (response) => {
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Unable to load restaurant menu.");
+        }
+
+        return result;
+      })
+      .then((result) => {
+        if (!active) return;
+        setRestaurant(result.restaurant);
+        setMenu(result.menu);
+      })
+      .catch((loadError) => {
+        if (active) setError(loadError.message);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [restaurantSlug]);
+
+  const addItem = (menuItem) => {
+    setCart((current) => {
+      const existing = current.find(
+        (item) => item.menuItemId === menuItem._id
+      );
+
+      if (existing) {
+        return current.map((item) =>
+          item.menuItemId === menuItem._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+
+      return [
+        ...current,
+        {
+          menuItemId: menuItem._id,
+          name: menuItem.name,
+          unitPrice: menuItem.price,
+          quantity: 1,
+        },
+      ];
+    });
+
+    setReceipt(null);
+  };
+
+  const changeQuantity = (menuItemId, quantity) => {
+    setCart((current) =>
+      current
+        .map((item) =>
+          item.menuItemId === menuItemId
+            ? { ...item, quantity }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const placeOrder = async () => {
+    if (cart.length === 0) return;
+
+    setError("");
+    setSubmitting(true);
+
+    try {
+      const response = await fetch(
+        `/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/orders`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tableNumber: table,
+            items: cart.map(({ menuItemId, quantity }) => ({
+              menuItemId,
+              quantity,
+            })),
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to place this order.");
+      }
+
+      setReceipt(result.order);
+      setCart([]);
+    } catch (orderError) {
+      setError(orderError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="tenant-ordering-page">
+      <header className="tenant-ordering-header">
+        <button type="button" onClick={onBack}>
+          ← Back
+        </button>
+
+        <button type="button" onClick={onBack}>
+          Change restaurant
+        </button>
+
+        <h1>{restaurant?.name ?? "Restaurant menu"}</h1>
+
+        <p>Ordering for Table {table}</p>
+      </header>
+
+      {error && (
+        <p className="tenant-order-error" role="alert">
+          {error}
+        </p>
+      )}
+
+      {receipt && (
+        <div className="tenant-order-success" role="status">
+          Order #{receipt.orderNumber} received.
+          Current status: {receipt.status}.
+        </div>
+      )}
+
+      {!error && menu.length === 0 && (
+        <div className="tenant-menu-item">
+          <p>No menu items are available right now.</p>
+        </div>
+      )}
+
+      {menu.map((item) => (
+        <article className="tenant-menu-item" key={item._id}>
+          {item.image && !failedImages[item._id] ? (
+            <img
+              className="tenant-menu-image"
+              src={item.image}
+              alt={item.name}
+              onError={() =>
+                setFailedImages((current) => ({
+                  ...current,
+                  [item._id]: true,
+                }))
+              }
+            />
+          ) : (
+            <div className="tenant-menu-image tenant-menu-image-placeholder">
+              🍽️
+            </div>
+          )}
+
+          <div>
+            <small>{item.category}</small>
+            <h3>{item.name}</h3>
+            <p>{item.description}</p>
+            <strong>
+              Rs. {item.price.toLocaleString("en-US")}
+            </strong>
+          </div>
+
+          <button type="button" onClick={() => addItem(item)}>
+            + Add to Order
+          </button>
+        </article>
+      ))}
+
+      {cart.length > 0 && (
+        <section className="tenant-cart">
+          <h2>My Order</h2>
+
+          {cart.map((item) => (
+            <div className="tenant-cart-row" key={item.menuItemId}>
+              <span>
+                {item.name} · Rs. {item.unitPrice.toLocaleString("en-US")}
+              </span>
+
+              <span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeQuantity(item.menuItemId, item.quantity - 1)
+                  }
+                >
+                  −
+                </button>
+
+                {" "}{item.quantity}{" "}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeQuantity(item.menuItemId, item.quantity + 1)
+                  }
+                >
+                  +
+                </button>
+              </span>
+            </div>
+          ))}
+
+          <p>
+            Total: Rs.{" "}
+            {cart
+              .reduce(
+                (sum, item) =>
+                  sum + item.unitPrice * item.quantity,
+                0
+              )
+              .toLocaleString("en-US")}
+          </p>
+
+          <button
+            type="button"
+            onClick={placeOrder}
+            disabled={submitting}
+          >
+            {submitting ? "Sending order..." : "Place Order"}
+          </button>
+        </section>
+      )}
+    </main>
+  );
+}
+
+}
+
+export default TenantOrdering;

@@ -1,0 +1,248 @@
+
+.menu-page {
+  background: #fff8f0;
+  min-height: 100vh;
+  width: 100%;
+  padding: 14px 28px 28px;
+  color: #1d1d1d;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  box-sizing: border-box;
+}
+
+.menu-page * {
+  box-sizing: border-box;
+}
+
+
+
+.menu-title-area {
+  text-align: center;
+  margin: 28px 0 20px;
+  padding: 0 10px;
+}
+
+.menu-small-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #b8741a;
+  letter-spacing: 2px;
+}
+
+.menu-title {
+  font-family: "Playfair Display", serif;
+  font-size: 30px;
+  color: #0f4125;
+  margin: 8px 0;
+}
+
+.menu-subtitle {
+  font-size: 11px;
+  color: #666;
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+
+.menu-filter-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.menu-filter-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  background: #fdf1e0;
+  border-radius: 20px;
+  padding: 4px;
+  flex-wrap: wrap;
+}
+
+.menu-filter-buttons button {
+  font-size: 11px;
+  padding: 7px 15px;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  color: #333;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.menu-filter-buttons button.active {
+  background: #0f4125;
+  color: white;
+  font-weight: 600;
+}
+
+
+
+.menu-cards-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+}
+
+
+.menu-food-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
+
+.menu-food-card:hover {
+  transform: translateY(-3px);
+}
+
+
+ .menu-image-wrapper {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  
+} 
+.menu-food-photo,
+.menu-food-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.menu-food-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 55px;
+}
+
+
+.menu-food-details {
+  padding: 14px;
+}
+
+.menu-food-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #b8741a;
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+}
+
+.menu-food-name {
+  font-family: "Playfair Display", serif;
+  font-size: 17px;
+  color: #0f4125;
+  margin: 0 0 8px;
+}
+
+.menu-food-description {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.5;
+  min-height: 34px;
+  margin-bottom: 12px;
+}
+
+
+
+.menu-food-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.menu-food-price {
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  color: #0f4125;
+}
+
+.menu-add-button {
+  background: #0f4125;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.menu-add-button:hover {
+  background: #17603a;
+}
+
+
+.menu-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: #f8e8d0;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 20px;
+}
+
+.menu-footer small {
+  font-size: 9px;
+  font-weight: 700;
+  color: #b8741a;
+}
+
+.menu-footer p {
+  font-size: 11px;
+  margin: 5px 0 0;
+}
+
+
+@media (max-width: 720px) {
+
+  .menu-page {
+    padding: 12px 14px 30px;
+  }
+
+  .menu-page .sp-nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .menu-cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-image-wrapper {
+    height: 190px;
+  }
+
+  .menu-title {
+    font-size: 26px;
+  }
+
+}
+
+@media (min-width: 721px) and (max-width: 1000px) {
+
+  .menu-page .sp-header {
+    gap: 12px;
+  }
+
+  .menu-cards-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}

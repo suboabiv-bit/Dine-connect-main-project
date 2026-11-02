@@ -1,0 +1,179 @@
+import { useState } from "react";
+import "./login.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+function RegistrationPage({ onBack }) {
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const updateField = (event) => {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Password and confirm password must match.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: form.fullName,
+          email: form.email,
+          username: form.username,
+          password: form.password,
+          phone: form.phone,
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.message || "Unable to create your account.");
+        return;
+      }
+
+      setSuccess("Your account has been created. You can now return to the login page.");
+      setForm({
+        fullName: "",
+        email: "",
+        username: "",
+        password: "",
+        confirmPassword: "",
+        phone: "",
+      });
+    } catch {
+      setError("Unable to connect to the registration service. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="login-page">
+      <div className="login-left">
+        <button className="login-back-button" type="button" onClick={onBack}>
+          ← Back to Login
+        </button>
+
+        <div className="login-form-wrap">
+          <div className="login-logo">
+            <span className="login-logo-icon">🍴</span>
+            <b>Dine<span>Connect</span></b>
+          </div>
+
+          <h1 className="login-title">Create an account</h1>
+          <p className="login-subtitle">Join DineConnect</p>
+
+          <form className="register-form" onSubmit={handleSubmit}>
+            <label className="login-label" htmlFor="register-full-name">Full Name</label>
+            <input
+              className="login-input register-input"
+              id="register-full-name"
+              name="fullName"
+              type="text"
+              autoComplete="name"
+              value={form.fullName}
+              onChange={updateField}
+              required
+            />
+
+            <label className="login-label" htmlFor="register-email">Email Address</label>
+            <input
+              className="login-input register-input"
+              id="register-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={updateField}
+              required
+            />
+
+            <label className="login-label" htmlFor="register-username">Username</label>
+            <input
+              className="login-input register-input"
+              id="register-username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              value={form.username}
+              onChange={updateField}
+              required
+            />
+
+            <label className="login-label" htmlFor="register-password">Password</label>
+            <input
+              className="login-input register-input"
+              id="register-password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              value={form.password}
+              onChange={updateField}
+              minLength={8}
+              required
+            />
+
+            <label className="login-label" htmlFor="register-confirm-password">Confirm Password</label>
+            <input
+              className="login-input register-input"
+              id="register-confirm-password"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              value={form.confirmPassword}
+              onChange={updateField}
+              minLength={8}
+              required
+            />
+
+            <label className="login-label" htmlFor="register-phone">Phone Number</label>
+            <input
+              className="login-input register-input"
+              id="register-phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              value={form.phone}
+              onChange={updateField}
+              required
+            />
+
+            {error && <p className="login-error" role="alert">{error}</p>}
+            {success && <p className="login-success" role="status">{success}</p>}
+
+            <button className="login-green-button" type="submit" disabled={submitting}>
+              {submitting ? "Creating account..." : "Create Account"}
+            </button>
+            <button className="login-create-button" type="button" onClick={onBack}>
+              Back to Login
+            </button>
+          </form>
+        </div>
+
+        <p className="login-footer">© 2026 DineConnect · Restaurant management</p>
+      </div>
+    </div>
+  );
+}
+
+export default RegistrationPage;

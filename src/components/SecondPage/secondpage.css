@@ -1,0 +1,229 @@
+
+
+.sp-page {
+
+  background: #fff8f0;
+  padding: 14px 28px 28px;
+  color: #1d1d1d;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+.sp-page button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* Header  */
+.sp-header { 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap; 
+    }
+.sp-left, .sp-icons {
+   display: flex;
+    align-items: center; 
+    gap: 8px;
+   }
+.sp-logo { 
+  font-size: 12px; 
+  display: flex;
+   gap: 4px; 
+   align-items: center; 
+  }
+.sp-logo span {
+   color: #b8741a;
+   }
+.sp-chip { font-size: 10px;
+   font-weight: 600;
+    background: #f6e6cf;
+     border-radius: 12px; 
+     padding: 5px 10px; 
+    }
+
+.sp-nav {
+   display: flex; gap: 4px;
+    background: #fdf1e0;
+     border-radius: 20px; 
+     padding: 4px; 
+   }
+.sp-nav button {
+   font-size: 11px; 
+   padding: 6px 12px; 
+   border-radius: 16px; 
+   color: #333; }
+.sp-nav button.active {
+   background: #0f4125; color: #fff; font-weight: 600; }
+
+.sp-icons button {
+   width: 30px; height: 30px; border-radius: 50%; background: #fdf1e0; font-size: 13px; position: relative; }
+.sp-icons .sp-profile {
+   background: #0f4125; }
+.sp-cart i {
+  position: absolute;
+   top: -5px; right: -3px; font-style: normal; font-size: 8px;
+  background: #b8741a; color: #fff; border-radius: 50%; width: 13px; height: 13px; display: grid; place-items: center;
+}
+
+/* Title */
+.sp-hero-title {
+   text-align: center; margin: 28px 0 20px; }
+.sp-hero-title h1 {
+   font-family: "Playfair Display", serif; font-size: 28px; color: #0f4125; }
+.sp-hero-title p { 
+  font-size: 11px; color: #666; margin-top: 6px; }
+
+/* Photo + placeholder */
+.sp-photo { 
+  width: 100%; height: 100%; object-fit: cover; display: block; }
+.sp-placeholder {
+   display: grid; place-items: center; font-size: 64px; background: linear-gradient(135deg, #f1d9b0, #e6c18a); }
+
+/* Badges */
+.sp-badge { 
+  position: absolute; font-size: 9px; font-weight: 600; padding: 4px 8px; border-radius: 10px; background: #fff; }
+.sp-badge.save {
+   top: 10px; left: 10px; background: #b8741a; color: #fff; }
+.sp-badge.green {
+   top: 10px; left: 100px; background: #0f4125; color: #fff; }
+.sp-badge.limited {
+   bottom: 10px; left: 10px; }
+
+/* Featured */
+.sp-featured {
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px;
+  background: #f8e8d0; border-radius: 22px; padding: 14px;
+}
+.sp-featured-img {
+   position: relative; border-radius: 14px; overflow: hidden; min-height: 240px; }
+.sp-featured-info {
+   display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.sp-featured-info small {
+   font-size: 10px; font-weight: 700; color: #b8741a; text-transform: uppercase; }
+.sp-featured-info h2 { 
+  font-family: "Playfair Display", serif; font-size: 24px; color: #0f4125; }
+.sp-featured-info p { 
+  font-size: 11px; line-height: 1.5; color: #444; }
+.sp-included {
+   display: flex; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 10px; background: #f2dfc4; border-radius: 8px; padding: 8px 10px; }
+
+/* Prices */
+.sp-price {
+   display: flex; align-items: baseline; gap: 8px; }
+.sp-price strong { 
+  font-family: "Playfair Display", serif; font-size: 22px; color: #0f4125; }
+.sp-price s { 
+  font-size: 10px; color: #999; }
+.sp-price em, .sp-price span {
+   font-style: normal; font-size: 9px; font-weight: 700; color: #b8741a; }
+.sp-price em { 
+  background: #fff; border-radius: 8px; padding: 2px 6px; }
+.sp-price.small strong { 
+  font-size: 16px; }
+.sp-price.small span {
+   margin-left: auto; }
+
+/* Buttons */
+.sp-actions {
+   display: flex; gap: 10px; align-items: center; }
+.sp-btn {
+  background: #0f4125; color: #fff; font-size: 12px; font-weight: 600;
+  padding: 11px 20px; border-radius: 20px; transition: background 0.2s;
+}
+.sp-btn:hover { 
+  background: #17603a; }
+.sp-actions .sp-btn {
+   flex: 1; }
+.sp-btn.wide {
+   width: 100%; margin-top: 12px; }
+.sp-btn-light {
+   font-size: 11px; padding: 11px 16px; border-radius: 20px; background: #fdf1e0; }
+.sp-page button:focus-visible { 
+  outline: 3px solid #b8741a; outline-offset: 2px; }
+
+/* Offers header */
+.sp-offers-head {
+   display: flex; justify-content: space-between; align-items: flex-end; margin: 28px 0 12px; flex-wrap: wrap; gap: 10px; }
+.sp-offers-head h3 { 
+  font-family: "Playfair Display", serif; font-size: 18px; color: #0f4125; }
+.sp-offers-head small {
+   font-size: 10px; color: #777; }
+.sp-filters { 
+  display: flex; gap: 4px; background: #fdf1e0; border-radius: 20px; padding: 4px; }
+.sp-filters button {
+   font-size: 10px; padding: 5px 12px; border-radius: 14px; }
+.sp-filters button.active {
+   background: #0f4125; color: #fff; font-weight: 600; }
+
+/* Offer cards */
+.sp-grid {
+   display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+     gap: 14px;
+      background: #f8e8d0;
+       border-radius: 20px;
+        padding: 14px;
+       }
+.sp-offer {
+   background: transparent; 
+  }
+.sp-offer-img {
+   position: relative; 
+   height: 110px;
+    border-radius: 10px; 
+    overflow: hidden;
+   }
+.sp-offer .sp-placeholder {
+   font-size: 40px; 
+  }
+.sp-tag {
+   display: block;
+    font-size: 9px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    color: #b8741a;
+     margin: 10px 0 4px;
+     }
+.sp-offer h4 { 
+  font-family: "Playfair Display",serif;
+  font-size: 14px;
+ color: #0f4125;
+   }
+
+.sp-offer p {
+   font-size: 10px; 
+   color: #555; 
+   line-height: 1.4; 
+   margin: 6px 0 10px;
+    min-height: 42px;
+   }
+
+/* Bottom bar */
+.sp-dispatch {
+  display: flex;
+   justify-content: space-between;
+    align-items: center;
+     gap: 14px; 
+     flex-wrap: wrap;
+  background: #f8e8d0; 
+  border-radius: 16px;
+   padding: 12px 16px; 
+   margin-top: 18px;
+}
+
+.sp-dispatch small {
+   font-size: 8px;
+    font-weight: 700;
+     text-transform: uppercase; 
+     color: #b8741a;
+     }
+
+.sp-dispatch p {
+   font-size: 11px;
+    margin-top: 2px;
+   }
+
+
+@media (max-width: 720px) {
+  .sp-featured {
+     grid-template-columns: 1fr; }
+  .sp-nav {
+     order: 3; width: 100%; overflow-x: auto; }
+}

@@ -1,0 +1,256 @@
+
+* {
+  box-sizing: border-box;
+}
+
+.welcome-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  
+ 
+  min-height: 100vh;
+  min-width: 100vw;
+  box-sizing: border-box;
+  padding: 24px;
+  background-image: url("./_ (1).jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.features{
+  font-family: Georgia, 'Times New Roman', serif;
+  color: black;
+}
+
+
+.welcome-card {
+  width: 100%;
+  max-width: 460px;
+  min-height: 520px;
+  background:beige;
+  border-radius: 26px;
+  padding: 38px 32px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 46px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #07532c;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.brand h3 {
+  margin: 0;
+  color: #07532c;
+  font-size: 15px;
+}
+
+.brand span {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+
+.welcome-heading {
+  text-align: center;
+  color: black;
+  font: clamp;
+  
+}
+
+.welcome-heading h1 {
+ 
+  color: black;
+  font-style: inherit;
+  font-size: large;
+}
+
+
+.welcome-heading p {
+  font-size: 10px;
+  color: #a75a12;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  margin: 22px 0 32px;
+  background: #fff6e9;
+  border-radius: 24px;
+  padding: 10px;
+}
+
+.features span {
+  background: white;
+  border: 1px solid #f1e6d5;
+  border-radius: 20px;
+  padding: 5px 7px;
+  font-family: Arial, sans-serif;
+  font-size: 9px;
+}
+
+.table-section {
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.table-section label {
+  font-size: 11px;
+  display: block;
+  margin-bottom: 7px;
+}
+
+.table-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff2e2;
+  border-radius: 25px;
+  padding: 9px 12px;
+}
+
+.table-input small {
+  display: block;
+  color: #777;
+  font-size: 8px;
+  margin-bottom: 3px;
+}
+
+.table-input input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: bold;
+  color: #292218;
+}
+
+.table-note {
+  font-size: 9px;
+  color: #688d69;
+  margin: 8px 4px 0;
+}
+
+.restaurant-error {
+  margin: 8px 4px 0;
+  color: #b03a2e;
+  font: 11px/1.4 Arial, sans-serif;
+}
+
+.restaurant-picker {
+  display: block;
+  margin-top: 12px;
+}
+
+.restaurant-picker select {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 10px 12px;
+  border: 1px solid #e3d8bf;
+  border-radius: 12px;
+  background: #fffdf9;
+  color: #292218;
+}
+
+.start-button {
+  width: 100%;
+  margin-top: 17px;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 30px;
+  background: #004b25;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  box-shadow: 0 3px 5px #0002;
+}
+
+.start-button > span:first-child {
+  flex: 1;
+  text-align: center;
+  padding-left: 28px;
+}
+
+.arrow {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: #23633f;
+  border-radius: 50%;
+}
+
+.start-button:hover {
+  background: #063b20;
+}
+
+.chef-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 35px;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.chef-icon {
+  font-size: 25px;
+}
+
+.chef-message p {
+  font-size: 9px;
+  line-height: 1.5;
+  margin: 0 0 5px;
+  color: #666;
+}
+
+.chef-message strong {
+  font-size: 9px;
+  color: #a75a12;
+}
+
+@media (max-width: 480px) {
+  .welcome-page {
+    padding: 14px;
+  }
+
+  .welcome-card {
+    padding: 30px 22px;
+  }
+
+  .brand {
+    margin-bottom: 35px;
+  }
+
+  .features {
+    margin-bottom: 25px;
+  }
+}
