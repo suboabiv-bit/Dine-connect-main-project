@@ -1,74 +1,92 @@
 # DineConnect
 
-DineConnect is a React + Vite restaurant ordering frontend with an Express and MongoDB API for customer accounts, restaurant tenants, staff authentication, restaurant menus, and orders.
+DineConnect is a restaurant ordering web app. Customers pick a restaurant, look at the menu, place an order, and watch the order status. Restaurant staff use separate logins to manage the menu and the kitchen.
 
-## Requirements
+**Built with:** React + Vite (frontend), Express (backend), MongoDB (database)
+
+## What you need first
 
 - Node.js 18 or newer
-- MongoDB (local or hosted)
+- MongoDB (on your computer or online, for example MongoDB Atlas)
 
-## Local setup
+## How to run the project
 
-1. Install frontend packages from the project root:
+1. Install the frontend packages (in the project root folder):
 
    ```sh
    npm install
    ```
 
-2. Configure the backend environment:
+2. Create your backend settings file:
 
    ```sh
    cp src/backend/.env.example src/backend/.env
    ```
 
-   Set `MONGODB_URI` to your MongoDB connection string and replace `JWT_SECRET` with a random value of at least 32 characters. Set a unique `OWNER_PASSWORD` with at least 12 characters. The Owner credentials are used only by the setup script; they are not checked into source control.
+   Then open `src/backend/.env` and change these values:
+   - `MONGODB_URI`: your MongoDB connection link
+   - `JWT_SECRET`: a long random text (at least 32 characters)
+   - `OWNER_PASSWORD`: a strong password (at least 12 characters)
 
-3. Install backend packages:
+   Never upload the `.env` file to GitHub. It contains secrets.
+
+3. Install the backend packages:
 
    ```sh
    npm install --prefix src/backend
    ```
 
-4. Create the first Owner account once:
+4. Create the first Owner account (do this only once):
 
    ```sh
    npm --prefix src/backend run seed:owner
    ```
 
-   The seed script refuses to create another Owner if one already exists.
-
-5. Start the API and frontend in separate terminals:
+5. Start the backend and the frontend. Use two separate terminals:
 
    ```sh
    npm --prefix src/backend run dev
+   ```
+
+   ```sh
    npm run dev
    ```
 
-   Vite proxies `/api` requests to `http://localhost:3001`.
+   The frontend sends `/api` requests to the backend at `http://localhost:3001`.
 
-## Accounts and access
+## Who can do what
 
-- Public `/api/auth/register` creates **customer** accounts only. It never accepts a role or restaurant ID from the client.
-- Only a signed-in Owner can create restaurants or Manager/Kitchen accounts.
-- Creating a restaurant also creates its first Manager account from the username and temporary password entered in the Owner Dashboard.
-- Manager and Kitchen API scope is taken from the authenticated account's database `restaurantId`, never from request parameters or request bodies.
-- Managers can add and edit menu image URLs; available menu images are displayed in that restaurant's customer ordering page.
-- Owner API responses contain platform restaurant metadata and staff account metadata. They do not return restaurant orders, customer details, sales, or reports.
-- Login sessions are signed JWTs stored in an HttpOnly, SameSite=Strict cookie. The browser does not store bearer tokens in localStorage.
-- Restaurant menus and orders are stored with a restaurant ID. Public menu lookup and customer order placement use an active restaurant's public slug. Kitchen order responses omit customer details and sales fields.
+| Role | What they can do |
+|------|------------------|
+| Customer | Sign up, choose a restaurant, order food, see order status |
+| Kitchen | See incoming orders and change their status |
+| Manager | Edit the menu and menu images, see the restaurant's orders |
+| Owner | Create restaurants and Manager/Kitchen accounts |
 
-The existing customer ordering pages remain available as the original demo flow. When active restaurants exist, a customer may choose one on the welcome page; this enters the tenant-scoped MongoDB menu and order flow. Demo ordering pages remain available when no restaurant is selected.
+Important rules:
+- Public sign-up creates **customer** accounts only.
+- Only a signed-in Owner can create restaurants and staff accounts.
+- Staff can only see data from their own restaurant.
+- The Owner cannot see customer details, orders, or sales.
+- Login uses a secure cookie (HttpOnly), not localStorage.
 
-## API outline
+The original demo ordering pages still work when no restaurant is selected.
 
-- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
-- Owner: `/api/owner/overview`, `/api/owner/restaurants`, `/api/owner/restaurants/:restaurantId/staff`
-- Owner support and platform settings: `/api/owner/support`, `/api/owner/settings`
+## API list
+
+- Login: `POST /api/auth/register`, `/login`, `/logout`, `GET /api/auth/me`
+- Owner: `/api/owner/overview`, `/api/owner/restaurants`, `/api/owner/restaurants/:restaurantId/staff`, `/api/owner/support`, `/api/owner/settings`
 - Manager: `/api/manager/restaurant`, `/api/manager/menu`, `/api/manager/orders`
 - Kitchen: `/api/kitchen/orders`, `/api/kitchen/orders/:orderId/status`
-- Manager/Kitchen support tickets: `POST /api/support`
-- Public tenant ordering: `/api/public/restaurants`, `/api/public/restaurants/:slug/menu`, `/api/public/restaurants/:slug/orders`
+- Support tickets: `POST /api/support`
+- Customers: `/api/public/restaurants`, `/api/public/restaurants/:slug/menu`, `/api/public/restaurants/:slug/orders`
 
 ## Security notes
 
-Use HTTPS in production and set `NODE_ENV=production` so session cookies are marked Secure. Keep `.env` files private. Public registration is customer-only; there is no public Owner, Manager, Kitchen, or restaurant-registration endpoint.
+- Use HTTPS when you put the app online.
+- Set `NODE_ENV=production` so cookies are marked Secure.
+- Keep all `.env` files private.
+
+## Author
+
+suboabiv-bit
