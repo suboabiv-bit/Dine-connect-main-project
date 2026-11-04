@@ -1,92 +1,78 @@
 # DineConnect
 
-DineConnect is a restaurant ordering web app. Customers pick a restaurant, look at the menu, place an order, and watch the order status. Restaurant staff use separate logins to manage the menu and the kitchen.
+DineConnect is a restaurant ordering and management web app. Customers can browse restaurant menus and place orders. Restaurant owners can sign in to a protected dashboard to review sales, manage orders and food items, maintain staff details, and update their restaurant profile.
 
-**Built with:** React + Vite (frontend), Express (backend), MongoDB (database)
+**Built with:** React, Vite, Express, MongoDB, Mongoose, JWT, and Recharts.
 
-## What you need first
+## Requirements
 
 - Node.js 18 or newer
-- MongoDB (on your computer or online, for example MongoDB Atlas)
+- MongoDB locally or through MongoDB Atlas
 
-## How to run the project
+## Run locally
 
-1. Install the frontend packages (in the project root folder):
+1. Install frontend dependencies from the project root:
 
    ```sh
    npm install
    ```
 
-2. Create your backend settings file:
+2. Install backend dependencies:
 
    ```sh
-   cp src/backend/.env.example src/backend/.env
+   npm install --prefix backend
    ```
 
-   Then open `src/backend/.env` and change these values:
-   - `MONGODB_URI`: your MongoDB connection link
-   - `JWT_SECRET`: a long random text (at least 32 characters)
-   - `OWNER_PASSWORD`: a strong password (at least 12 characters)
+3. Create `backend/.env` with your own database URL and a strong secret:
 
-   Never upload the `.env` file to GitHub. It contains secrets.
-
-3. Install the backend packages:
-
-   ```sh
-   npm install --prefix src/backend
+   ```env
+   MONGO_URI=mongodb://127.0.0.1:27017/dineconnect
+   JWT_SECRET=replace-this-with-a-long-random-secret
+   PORT=3001
+   FRONTEND_ORIGIN=http://localhost:5173
    ```
 
-4. Create the first Owner account (do this only once):
+   Keep this file private; `.env` files are ignored by Git.
+
+4. Start the backend and frontend in separate terminals:
 
    ```sh
-   npm --prefix src/backend run seed:owner
-   ```
-
-5. Start the backend and the frontend. Use two separate terminals:
-
-   ```sh
-   npm --prefix src/backend run dev
+   npm run dev --prefix backend
    ```
 
    ```sh
    npm run dev
    ```
 
-   The frontend sends `/api` requests to the backend at `http://localhost:3001`.
+   Open the Vite URL (usually `http://localhost:5173`). The Vite development server proxies `/api` requests to the backend at `http://localhost:3001`.
 
-## Who can do what
+5. Select **Restaurant Owner Sign In / Register** on the welcome page and register an owner account with its restaurant name. Registration signs the owner in and opens the dashboard.
 
-| Role | What they can do |
-|------|------------------|
-| Customer | Sign up, choose a restaurant, order food, see order status |
-| Kitchen | See incoming orders and change their status |
-| Manager | Edit the menu and menu images, see the restaurant's orders |
-| Owner | Create restaurants and Manager/Kitchen accounts |
+For a deployed frontend on a different origin, set `FRONTEND_ORIGIN` to that exact origin and set `VITE_API_BASE_URL` to the backend base URL when building the frontend. The backend uses an HttpOnly JWT cookie; serve the production app over HTTPS.
 
-Important rules:
-- Public sign-up creates **customer** accounts only.
-- Only a signed-in Owner can create restaurants and staff accounts.
-- Staff can only see data from their own restaurant.
-- The Owner cannot see customer details, orders, or sales.
-- Login uses a secure cookie (HttpOnly), not localStorage.
+## Owner dashboard features
 
-The original demo ordering pages still work when no restaurant is selected.
+- **Dashboard:** Live sales and order summary, daily and monthly charts, best-selling food, and recent orders.
+- **Sales:** Switch between daily and monthly revenue. Hover over chart points to see exact LKR values.
+- **Orders:** View recent or all orders, inspect order details, and change status.
+- **Food items:** Add, edit, and delete menu items; update price, image, category, and availability; review item sales.
+- **Staff:** Add, edit, and delete team members grouped by job role.
+- **Profile:** Edit owner and restaurant information, upload a profile picture, and view revenue summaries.
 
-## API list
+Owner endpoints require a valid owner session. Each dashboard query and mutation is scoped to the restaurant assigned to the signed-in owner.
 
-- Login: `POST /api/auth/register`, `/login`, `/logout`, `GET /api/auth/me`
-- Owner: `/api/owner/overview`, `/api/owner/restaurants`, `/api/owner/restaurants/:restaurantId/staff`, `/api/owner/support`, `/api/owner/settings`
-- Manager: `/api/manager/restaurant`, `/api/manager/menu`, `/api/manager/orders`
-- Kitchen: `/api/kitchen/orders`, `/api/kitchen/orders/:orderId/status`
-- Support tickets: `POST /api/support`
-- Customers: `/api/public/restaurants`, `/api/public/restaurants/:slug/menu`, `/api/public/restaurants/:slug/orders`
+## API routes
 
-## Security notes
+- Authentication: `POST /api/auth/register-owner`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+- Public restaurant ordering: `GET /api/public/restaurants`, `GET /api/public/restaurants/:slug/menu`, `POST /api/public/restaurants/:slug/orders`
+- Owner dashboard: `GET /api/owner/dashboard`
+- Owner orders: `GET /api/owner/orders`, `GET /api/owner/orders/:orderId`, `PATCH /api/owner/orders/:orderId/status`
+- Owner menu: `GET|POST /api/owner/food-items`, `PATCH|DELETE /api/owner/food-items/:itemId`
+- Owner staff: `GET|POST /api/owner/staff`, `PATCH|DELETE /api/owner/staff/:staffId`
+- Owner profile: `PATCH /api/owner/profile`
 
-- Use HTTPS when you put the app online.
-- Set `NODE_ENV=production` so cookies are marked Secure.
-- Keep all `.env` files private.
+## Security
 
-## Author
-
-suboabiv-bit
+- Keep `JWT_SECRET` and MongoDB credentials private.
+- Use HTTPS in production; production cookies are marked `Secure`.
+- Configure `FRONTEND_ORIGIN` to the frontend origin when frontend and backend are hosted separately.

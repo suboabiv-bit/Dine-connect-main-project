@@ -14,6 +14,8 @@ import ManagerDashboard from "./components/sixthpage/managerDashboard";
 import KitchenDashboard from "./components/sixthpage/kitchenDashboard";
 import TenantOrdering from "./components/ordering/ordering";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
 const pageForRole = (role) => ({
   admin: "admin",
   owner: "owner",
@@ -25,6 +27,7 @@ const pageForRole = (role) => ({
 function App() {
   const [page, setPage] = useState("first");
   const [registrationCustomerMode, setRegistrationCustomerMode] = useState(false);
+  const [registrationOwnerMode, setRegistrationOwnerMode] = useState(false);
   const [sessionUser, setSessionUser] = useState(null);
   const [table, setTable] = useState("05");
   const [restaurants, setRestaurants] = useState([]);
@@ -45,7 +48,7 @@ function App() {
   const [menuItems, setMenuItems] = useState(DEFAULT_ITEMS);
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    fetch(`${API_BASE_URL}/api/auth/me`, { credentials: "include" })
       .then(async (response) => {
         if (response.status === 401) return null;
         const result = await response.json();
@@ -61,7 +64,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch("/api/public/restaurants")
+    fetch(`${API_BASE_URL}/api/public/restaurants`, { credentials: "include" })
       .then(async (response) => {
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Unable to load restaurants.");
@@ -245,7 +248,7 @@ function App() {
   };
 
   const openCustomerAccount = () => {
-    setPage("customer-login");
+    setPage("owner-login");
   };
 
   const logout = async () => {
@@ -256,7 +259,7 @@ function App() {
     }
 
     try {
-      const response = await fetch("/api/auth/logout", { method: "POST" });
+      const response = await fetch(`${API_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" });
       if (!response.ok) throw new Error("The server could not end the session.");
       setSessionUser(null);
       setPage("first");
@@ -275,12 +278,17 @@ function App() {
   if (page === "register") {
     screen = (
       <RegistrationPage
-        onBack={() => setPage(registrationCustomerMode ? "customer-login" : "login")}
+        ownerMode={registrationOwnerMode}
+        onSuccess={(user) => {
+          setSessionUser(user);
+          setPage(pageForRole(user.role));
+        }}
+        onBack={() => setPage(registrationCustomerMode ? "customer-login" : registrationOwnerMode ? "owner-login" : "login")}
       />
     );
   }
 
-  else if (page === "login" || page === "customer-login" || page === "admin" || page === "owner" || page === "management" || page === "kitchen") {
+  else if (page === "login" || page === "customer-login" || page === "owner-login" || page === "admin" || page === "owner" || page === "management" || page === "kitchen") {
     if (sessionUser?.role === "admin") {
       screen = (
         <ManagementPage
@@ -310,8 +318,10 @@ function App() {
           onBack={() => setPage("first")}
           onCreateAccount={() => {
             setRegistrationCustomerMode(page === "customer-login");
+            setRegistrationOwnerMode(page === "owner-login");
             setPage("register");
           }}
+          ownerMode={page === "owner-login"}
           customerMode={page === "customer-login"}
         />
       );

@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
+    restaurantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
+      index: true,
+    },
+
     orderNumber: {
       type: Number,
       required: true,
@@ -28,6 +34,10 @@ const orderSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
+        menuItemId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "FoodItem",
+        },
       },
     ],
 
@@ -38,7 +48,8 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      default: "Received",
+      enum: ["Pending", "Preparing", "Ready", "Completed", "Cancelled", "Received"],
+      default: "Pending",
     },
   },
   { timestamps: true }

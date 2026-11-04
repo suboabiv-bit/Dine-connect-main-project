@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const Order = require("../models/Order");
+const requireOwner = require("../middleware/requireOwner");
 
 // Create a new order
-router.post("/", async (req, res) => {
+router.post("/", requireOwner, async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
+    const newOrder = new Order({ ...req.body, restaurantId: req.restaurantId });
 
     const savedOrder = await newOrder.save();
 
@@ -23,9 +24,9 @@ router.post("/", async (req, res) => {
 });
 
 // Get all orders
-router.get("/", async (req, res) => {
+router.get("/", requireOwner, async (req, res) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 });
+    const orders = await Order.find({ restaurantId: req.restaurantId }).sort({ createdAt: -1 });
 
     res.status(200).json(orders);
   } catch (error) {

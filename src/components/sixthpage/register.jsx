@@ -3,7 +3,7 @@ import "./login.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
-function RegistrationPage({ onBack }) {
+function RegistrationPage({ onBack, onSuccess, ownerMode = false }) {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -11,6 +11,7 @@ function RegistrationPage({ onBack }) {
     password: "",
     confirmPassword: "",
     phone: "",
+    restaurantName: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -33,15 +34,17 @@ function RegistrationPage({ onBack }) {
 
     setSubmitting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/${ownerMode ? "register-owner" : "register"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           fullName: form.fullName,
           email: form.email,
           username: form.username,
           password: form.password,
           phone: form.phone,
+          ...(ownerMode ? { restaurantName: form.restaurantName } : {}),
         }),
       });
       const result = await response.json();
@@ -51,14 +54,19 @@ function RegistrationPage({ onBack }) {
         return;
       }
 
+      if (ownerMode) {
+        onSuccess(result.user);
+        return;
+      }
+
       setSuccess("Your account has been created. You can now return to the login page.");
       setForm({
-        fullName: "",
-        email: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-        phone: "",
+        fullName: "Abigail",
+        email: "abigail2006@gmail.com",
+        username: "abigail2006",
+        password: "29082006",
+        confirmPassword: "29082006",
+        phone: "0751650658",
       });
     } catch {
       setError("Unable to connect to the registration service. Please try again.");
@@ -80,8 +88,8 @@ function RegistrationPage({ onBack }) {
             <b>Dine<span>Connect</span></b>
           </div>
 
-          <h1 className="login-title">Create an account</h1>
-          <p className="login-subtitle">Join DineConnect</p>
+          <h1 className="login-title">{ownerMode ? "Register your restaurant" : "Create an account"}</h1>
+          <p className="login-subtitle">{ownerMode ? "Join the DineConnect restaurant portal" : "Join DineConnect"}</p>
 
           <form className="register-form" onSubmit={handleSubmit}>
             <label className="login-label" htmlFor="register-full-name">Full Name</label>
@@ -157,6 +165,21 @@ function RegistrationPage({ onBack }) {
               onChange={updateField}
               required
             />
+
+            {ownerMode && (
+              <>
+                <label className="login-label" htmlFor="register-restaurant-name">Restaurant Name</label>
+                <input
+                  className="login-input register-input"
+                  id="register-restaurant-name"
+                  name="restaurantName"
+                  type="text"
+                  value={form.restaurantName}
+                  onChange={updateField}
+                  required
+                />
+              </>
+            )}
 
             {error && <p className="login-error" role="alert">{error}</p>}
             {success && <p className="login-success" role="status">{success}</p>}

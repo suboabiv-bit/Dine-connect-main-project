@@ -2,11 +2,13 @@
 import { useState } from "react";
 import "./login.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
 function LoginPage({
   onBack,
   onCreateAccount,
   onSuccess,
-  customerMode = false,
+  ownerMode = false,
 }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,31 +18,45 @@ function LoginPage({
   const [info, setInfo] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  
-  const handleLogin = (event) => {
+  // ADMIN AND OWNER BACKEND LOGIN
+  const handleLogin = async (event) => {
     event.preventDefault();
 
     setError("");
     setInfo("");
     setSubmitting(true);
 
-    if (
-      username.trim() === "admin" &&
-      password === "Admin123"
-    ) {
-      setInfo("Login successful!");
+    try {
+      const selectedRole = ownerMode ? "owner" : "admin";
 
-      onSuccess({
-        id: "demo-admin",
-        username: "admin",
-        fullName: "Demo Admin",
-        role: "admin",
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+          role: selectedRole,
+        }),
       });
 
-      setSubmitting(false);
-    } else {
-      setError("Invalid username or password.");
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.message || "Invalid username or password."
+        );
+      }
+
+      onSuccess(result.user);
+    } catch (loginError) {
+      setError(
+        loginError.message || "Unable to sign in. Please try again."
+      );
       setPassword("");
+    } finally {
       setSubmitting(false);
     }
   };
@@ -49,19 +65,40 @@ function LoginPage({
     <div className="login-page">
       <div className="login-card">
 
-        <h1>DineConnect</h1>
-        <p>RESTAURANT QR ORDERING</p>
+        <h1>
+          {ownerMode ? "DineConnect Owners" : "DineConnect"}
+        </h1>
 
-        <h2>Welcome Back!</h2>
-        <p>Please login to continue.</p>
+        <p>
+          {ownerMode
+            ? "RESTAURANT MANAGEMENT PORTAL"
+            : "RESTAURANT QR ORDERING"}
+        </p>
+
+        <h2>
+          {ownerMode ? "Restaurant Owner Sign In" : "Welcome Back!"}
+        </h2>
+
+        <p>
+          {ownerMode
+            ? "Sign in to manage your restaurant."
+            : "Please login to continue."}
+        </p>
 
         <form onSubmit={handleLogin}>
 
           <div className="form-group">
-            <label>Username</label>
+            <label>
+              {ownerMode ? "Owner Username" : "Admin Username"}
+            </label>
+
             <input
               type="text"
-              placeholder="Enter your username"
+              placeholder={
+                ownerMode
+                  ? "Enter your owner username"
+                  : "Enter your admin username"
+              }
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -102,7 +139,9 @@ function LoginPage({
             <button
               type="button"
               onClick={() =>
-                setInfo("Please contact the administrator to reset your password.")
+                setInfo(
+                  "Please contact the administrator to reset your password."
+                )
               }
             >
               Forgot password?
@@ -128,13 +167,19 @@ function LoginPage({
         </form>
 
         <div className="login-footer">
-          <p>Don't have an account?</p>
+          <p>
+            {ownerMode
+              ? "New to DineConnect?"
+              : "Don't have an account?"}
+          </p>
 
           <button
             type="button"
             onClick={onCreateAccount}
           >
-            Create Account
+            {ownerMode
+              ? "Register Restaurant"
+              : "Create Account"}
           </button>
         </div>
 
