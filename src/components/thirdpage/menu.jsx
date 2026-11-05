@@ -1,10 +1,8 @@
 import { useState } from "react";
 import "./menu.css";
 import "../SecondPage/secondpage.css";
-import { CATEGORIES, DEFAULT_ITEMS } from "./menu.js";
+import { DEFAULT_ITEMS } from "./menu.js";
 import CustomerNavigation from "../CustomerNavigation";
-
-const MENU_FILTERS = ["All", ...CATEGORIES];
 
 function FoodPhoto({ img, emoji, alt }) {
   const [imageError, setImageError] = useState(false);
@@ -31,11 +29,14 @@ function MenuPage({
   table = "05",
   cartCount = 0,
   items = DEFAULT_ITEMS,
+  loading = false,
+  error = "",
   onAdd,
   onNavigate,
   onBack,
 }) {
   const [category, setCategory] = useState("All");
+  const menuFilters = ["All", ...new Set(items.map((item) => item.category).filter(Boolean))];
 
   const shown =
     category === "All"
@@ -78,7 +79,7 @@ function MenuPage({
 
         <div className="menu-filter-buttons">
 
-          {MENU_FILTERS.map((item) => (
+          {menuFilters.map((item) => (
 
             <button
               key={item}
@@ -98,7 +99,10 @@ function MenuPage({
 
       <section className="menu-cards-row">
 
-        {shown.map((item) => (
+        {loading ? (
+          <p role="status">Loading menu…</p>
+        ) : (
+          shown.map((item) => (
 
           <article
             className="menu-food-card"
@@ -140,6 +144,7 @@ function MenuPage({
                   onClick={() =>
                     onAdd({
                       id: item.id,
+                      menuItemId: item.menuItemId || item._id,
                       name: item.name,
                       price: item.price,
                       emoji: item.emoji,
@@ -155,7 +160,11 @@ function MenuPage({
 
           </article>
 
-        ))}
+          ))
+        )}
+
+        {error && <p role="alert">{error}</p>}
+        {!loading && !error && shown.length === 0 && <p>No menu items are available right now.</p>}
 
       </section>
 

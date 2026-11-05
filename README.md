@@ -44,11 +44,11 @@ DineConnect is a restaurant ordering and management web app. Customers can brows
    npm run dev
    ```
 
-   Open the Vite URL (usually `http://localhost:5173`). The Vite development server proxies `/api` requests to the backend at `http://localhost:3001`.
+   Open the Vite URL (usually `http://localhost:5173`). The frontend sends API requests to `http://localhost:5000` by default.
 
 5. Select **Restaurant Owner Sign In / Register** on the welcome page and register an owner account with its restaurant name. Registration signs the owner in and opens the dashboard.
 
-For a deployed frontend on a different origin, set `FRONTEND_ORIGIN` to that exact origin and set `VITE_API_BASE_URL` to the backend base URL when building the frontend. The backend uses an HttpOnly JWT cookie; serve the production app over HTTPS.
+For a deployed frontend on a different origin, set `FRONTEND_ORIGIN` to that exact origin and set `VITE_API_URL` to the backend base URL when building the frontend. The backend uses an HttpOnly JWT cookie; serve the production app over HTTPS.
 
 ## Owner dashboard features
 

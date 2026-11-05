@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Restaurant = require("../models/Restaurant");
-const requireOwner = require("../middleware/requireOwner");
+const requireSession = require("../middleware/requireSession");
 
 const router = express.Router();
 const sessionCookie = "dineconnect_session";
@@ -241,11 +241,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GET CURRENT OWNER
-router.get("/me", requireOwner, async (req, res) => {
-  res.json({
-    user: publicUser(req.owner),
-  });
+// GET CURRENT SIGNED-IN USER
+router.get("/me", requireSession, (req, res) => {
+  res.json({ user: publicUser(req.user) });
 });
 
 // LOGOUT

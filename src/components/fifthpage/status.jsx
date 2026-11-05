@@ -17,15 +17,17 @@ const STEP_MESSAGES = [
 function StatusPage({
   table,
   orders,
+  loading = false,
+  error = "",
   cartCount,
   onNextStep,
   onClearServed,
   onNavigate,
   onBack,
 }) {
-  const totalAmount = orders.reduce((sum, o) => sum + o.price * o.qty, 0);
+  const totalAmount = orders.reduce((sum, o) => sum + (o.totalAmount ?? o.price * o.qty), 0);
   const inKitchen = orders.filter((o) => o.step < 3).length;
-  const servedCount = orders.length - inKitchen;
+  const servedCount = orders.filter((order) => order.step === 3 && order.statusLabel !== "Cancelled").length;
 
   return (
     <div className="sp-page status-page">
@@ -48,8 +50,10 @@ function StatusPage({
         </p>
       </header>
 
-     
-      {orders.length === 0 && (
+      {loading && <p role="status">Loading your order status…</p>}
+      {error && <p role="alert">{error}</p>}
+
+      {!loading && orders.length === 0 && (
         <div className="status-empty-box">
           <div className="status-empty-icon">🧾</div>
           <h2>No orders yet</h2>
@@ -64,7 +68,7 @@ function StatusPage({
       )}
 
       
-      {orders.length > 0 && (
+      {!loading && orders.length > 0 && (
         <div className="status-content">
 
           {/* SUMMARY */}
@@ -105,10 +109,10 @@ function StatusPage({
                 </div>
 
                 <div className="status-order-right">
-                  <div className="status-order-price">{rs(o.price * o.qty)}</div>
+                  <div className="status-order-price">{rs(o.totalAmount ?? o.price * o.qty)}</div>
 
                   <span className={"status-pill " + (o.step === 3 ? "served" : "")}>
-                    {STEP_NAMES[o.step]}
+                    {o.statusLabel || STEP_NAMES[o.step]}
                   </span>
                 </div>
               </div>
@@ -136,10 +140,10 @@ function StatusPage({
               
               <div className="status-order-bottom">
                 <span className="status-order-message">
-                  {STEP_MESSAGES[o.step]}
+                  {o.statusLabel === "Cancelled" ? "This order was cancelled." : STEP_MESSAGES[o.step]}
                 </span>
 
-                {o.step < 3 && (
+                {o.step < 3 && onNextStep && (
                   <button
                     className="status-demo-button"
                     onClick={() => onNextStep(o.id)}

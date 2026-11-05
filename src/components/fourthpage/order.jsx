@@ -11,6 +11,8 @@ function OrderPage({
   onChangeQty,
   onRemove,
   onPlaceOrder,
+  submitting = false,
+  error = "",
   cartCount,
   onNavigate,
   onBack,
@@ -61,6 +63,7 @@ function OrderPage({
       {cart.length > 0 && (
         <div className="order-layout">
 
+          {error && <p role="alert">{error}</p>}
           
           <div className="order-list">
             {cart.map((item) => (
@@ -133,8 +136,9 @@ function OrderPage({
             <button
               className="order-place-button"
               onClick={onPlaceOrder}
+              disabled={submitting}
             >
-              Place Order
+              {submitting ? "Sending order..." : "Place Order"}
             </button>
 
             <button

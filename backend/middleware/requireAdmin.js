@@ -1,66 +1,39 @@
-
+// Lets only a signed-in ADMIN reach the kitchen routes.
+// It reads the login token from the "token" cookie (or an Authorization header).
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
-const getCookie = (header, name) => {
-  const entry = (header || "")
+const getTokenFromCookie = (req) => {
+  const raw = req.headers.cookie || "";
+  const found = raw
     .split(";")
     .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`));
-
-  return entry
-    ? decodeURIComponent(entry.slice(name.length + 1))
-    : "";
+    .find((part) => part.startsWith("token="));
+  return found ? decodeURIComponent(found.slice("token=".length)) : null;
 };
 
-const requireAdmin = async (req, res, next) => {
-  const token = getCookie(
-    req.headers.cookie,
-    "dineconnect_session"
-  );
+module.exports = function requireAdmin(req, res, next) {
+  const header = req.headers.authorization || "";
+  const token =
+    getTokenFromCookie(req) ||
+    (header.startsWith("Bearer ") ? header.slice(7) : null);
 
   if (!token) {
-    return res.status(401).json({
-      message: "Please sign in to continue.",
-    });
-  }
-
-  if (!process.env.JWT_SECRET) {
-    return res.status(503).json({
-      message: "Authentication is not configured.",
-    });
+    return res.status(401).json({ message: "Please sign in first." });
   }
 
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
 
     if (payload.role !== "admin") {
-      return res.status(403).json({
-        message: "Admin access is required.",
-      });
+      return res.status(403).json({ message: "Admin access only." });
     }
 
-    const user = await User.findById(payload.sub).select(
-      "fullName email username phone role profilePicture createdAt"
-    );
-
-    if (!user || user.role !== "admin") {
-      return res.status(401).json({
-        message: "This admin account is no longer available.",
-      });
-    }
-
-    req.admin = user;
-
-    return next();
-  } catch {
-    return res.status(401).json({
-      message: "Your session has expired. Please sign in again.",
-    });
+    req.user = payload;
+    next();
+  } catch (error) {
+  
+    return res
+      .status(401)
+      .json({ message: "Session expired. Please sign in again." });
   }
 };
-
-module.exports = requireAdmin;

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import "./management.css";
+import { API_BASE_URL } from "../../config/api";
 
 const callApi = async (url, options = {}) => {
-  const response = await fetch(url, {
+  const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
+    credentials: "include",
     headers: { ...(options.body ? { "Content-Type": "application/json" } : {}) },
   });
   const result = await response.json();

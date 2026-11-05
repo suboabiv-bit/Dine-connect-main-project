@@ -1,5 +1,3 @@
-
-
 .sp-page {
 
   background: #fff8f0;
@@ -227,3 +225,87 @@
   .sp-nav {
      order: 3; width: 100%; overflow-x: auto; }
 }
+
+/* ---------- BUTTON FIXES (".sp-page button" above was overriding these) ---------- */
+.sp-page .sp-btn { background: #0f4125; color: #fff; }
+.sp-page .sp-btn:hover { background: #17603a; }
+.sp-page .sp-btn-light { background: #fdf1e0; color: #0f4125; font-weight: 700; border: 1.5px solid #0f4125; }
+.sp-page .sp-btn-light:hover { background: #0f4125; color: #fff; }
+
+/* ---------- CUSTOMIZE POPUP ---------- */
+.cz-back { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
+.cz-box { background: #fff8f0; border-radius: 20px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; padding: 20px 22px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); color: #1d1d1d; font-family: "Plus Jakarta Sans", sans-serif; }
+.cz-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.cz-head h3 { margin: 0; font-family: "Playfair Display", serif; font-size: 20px; color: #0f4125; }
+.cz-box .cz-close { width: 30px; height: 30px; border-radius: 50%; background: #f6e6cf; color: #0f4125; font-size: 14px; cursor: pointer; border: none; }
+.cz-section { margin-top: 14px; }
+.cz-section h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #b8741a; }
+.cz-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.cz-options label { display: flex; align-items: center; gap: 6px; font-size: 12px; background: #f8e8d0; border-radius: 12px; padding: 7px 12px; cursor: pointer; }
+.cz-options label em { font-style: normal; font-weight: 700; color: #b8741a; font-size: 11px; }
+.cz-options input { accent-color: #0f4125; }
+.cz-box textarea { width: 100%; min-height: 64px; border: 1.5px solid #e6c18a; border-radius: 12px; padding: 10px; font-family: inherit; font-size: 12px; background: #fff; color: #1d1d1d; resize: vertical; }
+.cz-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid #e6c18a; }
+.cz-total small { display: block; font-size: 10px; color: #777; text-transform: uppercase; }
+.cz-total strong { font-family: "Playfair Display", serif; font-size: 22px; color: #0f4125; }
+
+
+/* ---------- BACK BUTTON (top left, replaces the old logo) ---------- */
+.sp-page .sp-back { background: #0f4125; color: #fff; font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 16px; transition: background 0.2s; }
+.sp-page .sp-back:hover { background: #17603a; }
+
+
+/* ============================================================
+   FULL SCREEN SCALE: whole page is scaled up on bigger screens.
+   Change these numbers if you want everything bigger / smaller.
+   ============================================================ */
+@media (min-width: 1100px) { .sp-page { zoom: 1.1; } }
+@media (min-width: 1300px) { .sp-page { zoom: 1.25; } }
+@media (min-width: 1500px) { .sp-page { zoom: 1.4; } }
+@media (min-width: 1700px) { .sp-page { zoom: 1.55; } }
+@media (min-width: 1900px) { .sp-page { zoom: 1.7; } }
+@media (min-width: 2300px) { .sp-page { zoom: 2.1; } }
+
+/* ---------- TOP NAVIGATION: smaller text ---------- */
+@media (min-width: 1100px) {
+  .sp-chip { font-size: 9px; padding: 4px 9px; }
+  .sp-page .sp-back { font-size: 10px; padding: 6px 14px; }
+  .sp-nav button { font-size: 10px; padding: 5px 11px; }
+}
+
+/* ---------- TITLE: bold ---------- */
+.sp-hero-title h1 { font-size: 32px; font-weight: 800; }
+
+/* ---------- FEATURED COMBO: smaller picture, bigger text ---------- */
+.sp-featured-img { min-height: 0; height: 320px; }
+.sp-featured-info h2 { font-size: 28px; }
+.sp-featured-info p { font-size: 13px; line-height: 1.6; }
+.sp-included { font-size: 11px; }
+
+
+/* ---------- TABLE CHIP: same look as the navigation buttons ---------- */
+.sp-page .sp-chip { font-size: 11px; font-weight: 400; color: #333; background: #fdf1e0; border-radius: 20px; padding: 10px 16px; line-height: 1.2; }
+@media (min-width: 1100px) {
+  .sp-page .sp-chip { font-size: 10px; padding: 9px 16px; }
+}
+
+
+/* ============================================================
+   CUSTOMIZE POPUP SIZE FIX
+   The whole page is zoomed on big screens, so the popup is zoomed back down
+   to normal size (about 1.0) and its height is limited so it always fits.
+   (each zoom number = 1 / page zoom, so the popup ends up at normal size)
+   ============================================================ */
+@media (min-width: 1100px) { .cz-box { zoom: 0.91; max-height: 88vh; } }
+@media (min-width: 1300px) { .cz-box { zoom: 0.8; max-height: 88vh; } }
+@media (min-width: 1500px) { .cz-box { zoom: 0.71; max-height: 88vh; } }
+@media (min-width: 1700px) { .cz-box { zoom: 0.65; max-height: 88vh; } }
+@media (min-width: 1900px) { .cz-box { zoom: 0.59; max-height: 88vh; } }
+@media (min-width: 2300px) { .cz-box { zoom: 0.48; max-height: 88vh; } }
+
+/* a bit tighter inside so everything fits without scrolling */
+.cz-box { max-width: 440px; padding: 18px 20px; }
+.cz-section { margin-top: 10px; }
+.cz-options label { padding: 6px 11px; }
+.cz-box textarea { min-height: 52px; }
+.cz-footer { margin-top: 14px; padding-top: 12px; }

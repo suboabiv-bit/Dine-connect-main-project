@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import "./ownerDashboard.css";
+import { API_BASE_URL } from "../../config/api";
 
 const NAV_ITEMS = [
   ["dashboard", "Dashboard", "▦"],
@@ -26,7 +27,6 @@ const CURRENCY = new Intl.NumberFormat("en-LK", {
   currency: "LKR",
   maximumFractionDigits: 0,
 });
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 const currency = (amount = 0) => CURRENCY.format(Number(amount) || 0);
 const dateTime = (value) => value ? new Date(value).toLocaleString() : "—";
 const dateOnly = (value) => value ? new Date(value).toLocaleDateString() : "—";

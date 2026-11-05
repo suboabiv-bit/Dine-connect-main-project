@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Restaurant = require("../models/Restaurant");
 const FoodItem = require("../models/FoodItem");
 const Order = require("../models/Order");
@@ -15,6 +16,25 @@ router.get("/restaurants/:slug/menu", async (req, res) => {
   if (!restaurant) return res.status(404).json({ message: "Restaurant not found." });
   const menu = await FoodItem.find({ restaurantId: restaurant._id, available: true }).sort({ category: 1, name: 1 });
   return res.json({ restaurant, menu });
+});
+
+router.get("/restaurants/:slug/orders/:orderId", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.orderId)) {
+    return res.status(400).json({ message: "Invalid order ID." });
+  }
+  try {
+    const restaurant = await Restaurant.findOne({ slug: req.params.slug.toLowerCase() }).select("_id");
+    if (!restaurant) return res.status(404).json({ message: "Restaurant not found." });
+    const order = await Order.findOne({
+      _id: req.params.orderId,
+      restaurantId: restaurant._id,
+    }).select("orderNumber tableNumber items totalAmount status createdAt");
+    if (!order) return res.status(404).json({ message: "Order not found." });
+    return res.json({ order });
+  } catch (error) {
+    console.error("Public order status error:", error);
+    return res.status(500).json({ message: "Unable to load order status." });
+  }
 });
 
 router.post("/restaurants/:slug/orders", async (req, res) => {

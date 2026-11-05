@@ -100,3 +100,20 @@ export const DEFAULT_ITEMS = [
     available: true,
   },
 ];
+
+const CATEGORY_EMOJI = {
+  burger: "🍔",
+  pizza: "🍕",
+  side: "🍟",
+  drink: "🥤",
+};
+
+export const normalizeMenuItems = (items) => items.map((item) => ({
+  ...item,
+  id: item._id || item.id,
+  menuItemId: item._id || item.menuItemId,
+  img: item.image || item.img || "",
+  emoji: item.emoji || Object.entries(CATEGORY_EMOJI)
+    .find(([keyword]) => String(item.category || "").toLowerCase().includes(keyword))?.[1] || "🍽️",
+  description: item.description || "",
+}));

@@ -1,8 +1,20 @@
 
 import { useEffect, useState } from "react";
 import "./ordering.css";
+import { API_BASE_URL } from "../../config/api";
 
-function TenantOrdering({ restaurantSlug, table, onBack }) {
+const ORDER_STORAGE_KEY = "dineconnect_customer_orders";
+
+const readTrackedOrderId = (restaurantSlug) => {
+  try {
+    const orders = JSON.parse(localStorage.getItem(ORDER_STORAGE_KEY) || "[]");
+    return Array.isArray(orders)
+      ? orders.find((order) => order?.restaurantSlug === restaurantSlug)?.id || ""
+      : "";
+  } catch {
+    return "";
+  }
+};
 
 function TenantOrdering({ restaurantSlug, table, onBack }) {
   const [restaurant, setRestaurant] = useState(null);
@@ -12,11 +24,14 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
   const [receipt, setReceipt] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [failedImages, setFailedImages] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [trackedOrderId, setTrackedOrderId] = useState(() => readTrackedOrderId(restaurantSlug));
+  const [statusError, setStatusError] = useState("");
 
   useEffect(() => {
     let active = true;
 
-    fetch(`/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/menu`)
+    fetch(`${API_BASE_URL}/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/menu`)
       .then(async (response) => {
         const result = await response.json();
 
@@ -33,12 +48,42 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
       })
       .catch((loadError) => {
         if (active) setError(loadError.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
 
     return () => {
       active = false;
     };
   }, [restaurantSlug]);
+
+  useEffect(() => {
+    if (!trackedOrderId || !restaurantSlug) return undefined;
+    let active = true;
+    const refreshStatus = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/orders/${encodeURIComponent(trackedOrderId)}`
+        );
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Unable to load order status.");
+        if (active) {
+          setReceipt(result.order);
+          setStatusError("");
+        }
+      } catch (error) {
+        if (active) setStatusError(error.message || "Unable to refresh order status.");
+      }
+    };
+
+    refreshStatus();
+    const timer = setInterval(refreshStatus, 8000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [restaurantSlug, trackedOrderId]);
 
   const addItem = (menuItem) => {
     setCart((current) => {
@@ -88,7 +133,7 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
 
     try {
       const response = await fetch(
-        `/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/orders`,
+        `${API_BASE_URL}/api/public/restaurants/${encodeURIComponent(restaurantSlug)}/orders`,
         {
           method: "POST",
           headers: {
@@ -111,6 +156,17 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
       }
 
       setReceipt(result.order);
+      setTrackedOrderId(String(result.order._id));
+      try {
+        const savedOrders = JSON.parse(localStorage.getItem(ORDER_STORAGE_KEY) || "[]");
+        const currentOrders = Array.isArray(savedOrders) ? savedOrders : [];
+        localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify([
+          ...currentOrders.filter((order) => order?.id !== String(result.order._id)),
+          { id: String(result.order._id), restaurantSlug },
+        ]));
+      } catch {
+        setStatusError("Order was placed, but its status could not be saved in this browser.");
+      }
       setCart([]);
     } catch (orderError) {
       setError(orderError.message);
@@ -140,6 +196,8 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
           {error}
         </p>
       )}
+      {statusError && <p className="tenant-order-error" role="alert">{statusError}</p>}
+      {loading && <p role="status">Loading menu…</p>}
 
       {receipt && (
         <div className="tenant-order-success" role="status">
@@ -148,13 +206,13 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
         </div>
       )}
 
-      {!error && menu.length === 0 && (
+      {!loading && !error && menu.length === 0 && (
         <div className="tenant-menu-item">
           <p>No menu items are available right now.</p>
         </div>
       )}
 
-      {menu.map((item) => (
+      {!loading && menu.map((item) => (
         <article className="tenant-menu-item" key={item._id}>
           {item.image && !failedImages[item._id] ? (
             <img
@@ -245,8 +303,6 @@ function TenantOrdering({ restaurantSlug, table, onBack }) {
       )}
     </main>
   );
-}
-
 }
 
 export default TenantOrdering;

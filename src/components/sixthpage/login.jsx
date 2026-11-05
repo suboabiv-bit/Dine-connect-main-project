@@ -1,8 +1,7 @@
 
 import { useState } from "react";
 import "./login.css";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+import { API_BASE_URL } from "../../config/api";
 
 function LoginPage({
   onBack,

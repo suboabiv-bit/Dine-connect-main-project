@@ -9,11 +9,11 @@ function CustomerNavigation({ activePage, table, cartCount, onNavigate, onBack }
   return (
     <header className="sp-header">
       <div className="sp-left">
-        <button className="sp-logo" onClick={onBack}>
-          🍴 <b>Dine<span>Connect</span></b>
+        <button className="sp-back" onClick={onBack} aria-label="Back to home">
+          ← Back
         </button>
-        <span className="sp-chip">Submarin Burger Meals</span>
-        <span className="sp-chip">● Table {table}</span>
+        
+        <span className="sp-chip"> Table {table}</span>
       </div>
 
       <nav className="sp-nav">

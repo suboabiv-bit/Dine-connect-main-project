@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./management.css";
+import { API_BASE_URL } from "../../config/api";
 
 const steps = ["received", "preparing", "ready", "served"];
 const nextLabel = { received: "Start preparing", preparing: "Mark ready", ready: "Mark served" };
@@ -11,7 +12,7 @@ function KitchenDashboard({ user, onLogout }) {
   const [notice, setNotice] = useState("");
 
   const loadOrders = async () => {
-    const response = await fetch("/api/kitchen/orders");
+    const response = await fetch(`${API_BASE_URL}/api/kitchen/orders`, { credentials: "include" });
     const result = await response.json();
     if (!response.ok) throw new Error(result.message || "Unable to load restaurant orders.");
     setOrders(result.orders);
@@ -32,8 +33,9 @@ function KitchenDashboard({ user, onLogout }) {
 
   const advance = async (order) => {
     setError("");
-    const response = await fetch(`/api/kitchen/orders/${order._id}/status`, {
+    const response = await fetch(`${API_BASE_URL}/api/kitchen/orders/${order._id}/status`, {
       method: "PATCH",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: steps[steps.indexOf(order.status) + 1] }),
     });
@@ -50,8 +52,9 @@ function KitchenDashboard({ user, onLogout }) {
     setError("");
     setNotice("");
     try {
-      const response = await fetch("/api/support", {
+      const response = await fetch(`${API_BASE_URL}/api/support`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(support),
       });
