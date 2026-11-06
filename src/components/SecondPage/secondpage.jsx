@@ -215,10 +215,6 @@ function SecondPage({
       <section className="sp-hero-title">
         <h1>Today's Specials</h1>
 
-        {/* <p>
-          Exclusive Chef Creations; Limited Time Culinary
-          Offers prepared fresh for <b>Table {table}</b>
-        </p> */}
       </section>
 
       <section className="sp-featured">

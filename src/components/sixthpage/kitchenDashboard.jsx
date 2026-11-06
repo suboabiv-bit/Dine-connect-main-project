@@ -70,7 +70,7 @@ function KitchenDashboard({ user, onLogout }) {
   return (
     <div className="mg-page">
       <nav className="mg-navbar">
-        <div className="mg-logo">🍴 DineConnect · Kitchen</div>
+        <div className="mg-logo">DineConnect · Kitchen</div>
         <div className="mg-navbar-actions"><span>{user.fullName}</span><button className="mg-logout-button" onClick={onLogout}>Logout</button></div>
       </nav>
       <header className="mg-title-area"><p className="mg-small-title">Restaurant kitchen</p><h1 className="mg-title">Kitchen Dashboard</h1></header>

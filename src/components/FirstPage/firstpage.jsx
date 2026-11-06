@@ -59,18 +59,26 @@ function FirstPage({
 
   // START ORDERING
   const handleStart = () => {
-    const t = cleanTable();
+   
+    console.log("Start Ordering clicked", {
+      onStart,
+      restaurants,
+      restaurantsLoading,
+      restaurantLoadError,
+      selectedRestaurant,
+    });
 
-    if (restaurantsLoading) {
-      setWarning("Please wait while restaurants load");
+    const t = cleanTable();
+    setWarning("");
+
+    if (typeof onStart !== "function") {
+      setWarning("onStart is not connected in App.jsx");
+      console.error("FirstPage: the onStart prop was not passed from App.jsx");
       return;
     }
 
-    if (restaurants.length > 0) {
-      if (!selectedRestaurant) {
-        setWarning("Please choose a restaurant first");
-        return;
-      }
+    
+    if (selectedRestaurant) {
       onStart(t, selectedRestaurant);
     } else {
       onStart(t);
@@ -144,35 +152,8 @@ function FirstPage({
               </h3>
               <p>Welcome to DineConnect 🛎️</p>
             </div>
-
-            <button className="home-table-change" onClick={startEditing}>
-              Change
-            </button>
           </div>
 
-          {/* CHOOSE RESTAURANT (only shows when the API sends restaurants) */}
-          {restaurants.length > 0 && (
-            <div className="home-restaurant-box">
-              <label>🏪 Choose your restaurant</label>
-              <select
-                value={selectedRestaurant}
-                onChange={(e) => {
-                  onSelectRestaurant(e.target.value);
-                  setWarning("");
-                }}
-              >
-                <option value="">Select a restaurant</option>
-                {restaurants.map((r) => (
-                  <option key={r.slug || r.id || r._id} value={r.slug}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {restaurantsLoading && <p className="home-note" role="status">Loading restaurants…</p>}
-          {restaurantLoadError && <p className="home-note" role="alert">{restaurantLoadError}</p>}
           {warning && <p className="home-warning">{warning}</p>}
 
           {/* START ORDERING BUTTON */}

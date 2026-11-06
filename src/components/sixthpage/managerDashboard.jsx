@@ -149,7 +149,7 @@ function ManagerDashboard({ user, onLogout }) {
   return (
     <div className="mg-page">
       <nav className="mg-navbar">
-        <div className="mg-logo">🍴 {restaurant?.name ?? "Restaurant"} · Manager</div>
+        <div > {restaurant?.name ?? "Restaurant"} · Manager</div>
         <div className="mg-navbar-actions"><span>{user.fullName}</span><button className="mg-logout-button" onClick={onLogout}>Logout</button></div>
       </nav>
       <header className="mg-title-area"><p className="mg-small-title">Restaurant control panel</p><h1 className="mg-title">Manager Dashboard</h1></header>

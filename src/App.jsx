@@ -132,9 +132,7 @@ function App() {
 
   const [menuItems, setMenuItems] = useState(DEFAULT_ITEMS);
   const [menuLoading, setMenuLoading] = useState(() => readStoredOrders().length > 0);
-  const [menuLoadError, setMenuLoadError] = useState(() =>
-    readStoredOrders().length ? "" : "Choose a restaurant to load its menu. Showing sample menu."
-  );
+  const [menuLoadError, setMenuLoadError] = useState("");
   const trackedOrderKey = JSON.stringify(orders
     .filter((order) => order.orderId && order.restaurantSlug)
     .map(({ orderId, restaurantSlug }) => ({ id: orderId, restaurantSlug })));
@@ -287,12 +285,8 @@ function App() {
   // Order directly from specials
   const submitOrder = async (items) => {
     setOrderError("");
-    if (!selectedRestaurant) {
-      setOrderError("Choose a restaurant before placing your order.");
-      return;
-    }
-    if (!items.length || items.some((item) => !item.menuItemId)) {
-      setOrderError("Select menu items from a restaurant menu before placing your order.");
+    if (!items.length) {
+      setOrderError("Select menu items before placing your order.");
       return;
     }
 
@@ -426,7 +420,7 @@ function App() {
     } else {
       setMenuItems(DEFAULT_ITEMS);
       setMenuLoading(false);
-      setMenuLoadError("Choose a restaurant to load its menu. Showing sample menu.");
+      setMenuLoadError("");
     }
   };
 
@@ -654,7 +648,7 @@ function App() {
         loading={menuLoading}
         error={menuLoadError}
         orderError={orderError}
-        useFallback={Boolean(menuLoadError)}
+        useFallback={Boolean(menuLoadError) || !selectedRestaurant}
         onAdd={addToCart}
         onOrderNow={orderNow}
         onBack={() => setPage("first")}
