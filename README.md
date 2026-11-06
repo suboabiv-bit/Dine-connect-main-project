@@ -1,17 +1,36 @@
 # DineConnect
 
-DineConnect is a restaurant ordering and management web app. Customers can browse restaurant menus and place orders. Restaurant owners can sign in to a protected dashboard to review sales, manage orders and food items, maintain staff details, and update their restaurant profile.
+DineConnect is a restaurant ordering and management web application. Customers can browse a sample menu and build an order. Separate, role-protected dashboards let restaurant owners, managers, kitchen staff, and administrators manage restaurant operations.
 
-**Built with:** React, Vite, Express, MongoDB, Mongoose, JWT, and Recharts.
+## Features
+
+- Customer-facing sample menu with categories, item details, a cart, and order review.
+- Restaurant owner dashboard for sales, orders, menu items, staff, and restaurant profile.
+- Separate management and kitchen interfaces with role-based access.
+- Express API with MongoDB persistence for accounts, restaurants, menus, and orders.
+- Responsive React interface for desktop and mobile layouts.
+
+> **Demo menu:** The customer menu currently uses sample items bundled with the frontend. It does not identify a restaurant, so it cannot submit those sample items as a real backend order. Restaurant-scoped order creation requires a restaurant and menu items configured in the backend.
+
+## Technology
+
+- Frontend: React 19, Vite 5
+- Backend: Node.js, Express 5
+- Database: MongoDB with Mongoose
+- Authentication: JWT in an HttpOnly cookie
+- Charts: Recharts
 
 ## Requirements
 
 - Node.js 18 or newer
-- MongoDB locally or through MongoDB Atlas
+- npm
+- MongoDB locally or a MongoDB Atlas connection string
 
 ## Run locally
 
-1. Install frontend dependencies from the project root:
+Run these commands from the repository root.
+
+1. Install frontend dependencies:
 
    ```sh
    npm install
@@ -23,18 +42,29 @@ DineConnect is a restaurant ordering and management web app. Customers can brows
    npm install --prefix backend
    ```
 
-3. Create `backend/.env` with your own database URL and a strong secret:
+3. Create `backend/.env`:
 
    ```env
    MONGO_URI=mongodb://127.0.0.1:27017/dineconnect
-   JWT_SECRET=replace-this-with-a-long-random-secret
-   PORT=3001
+   JWT_SECRET=replace-with-a-long-random-secret
+   PORT=5000
    FRONTEND_ORIGIN=http://localhost:5173
    ```
 
-   Keep this file private; `.env` files are ignored by Git.
+   The frontend uses `http://localhost:5000` as its default API URL. Set `PORT=5000` so the backend and frontend defaults match. Keep `.env` private; it is ignored by Git.
 
-4. Start the backend and frontend in separate terminals:
+4. Optionally configure a bootstrap administrator in `backend/.env`:
+
+   ```env
+   ADMIN_USERNAME=admin
+   ADMIN_PASSWORD=replace-with-a-strong-password
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_NAME=DineConnect Administrator
+   ```
+
+   `ADMIN_USERNAME` and `ADMIN_PASSWORD` must both be set to create an administrator. The password must contain at least eight characters. Omit these variables to skip administrator provisioning.
+
+5. Start the backend and frontend in separate terminals:
 
    ```sh
    npm run dev --prefix backend
@@ -44,35 +74,80 @@ DineConnect is a restaurant ordering and management web app. Customers can brows
    npm run dev
    ```
 
-   Open the Vite URL (usually `http://localhost:5173`). The frontend sends API requests to `http://localhost:5000` by default.
+6. Open [http://localhost:5173](http://localhost:5173). The backend health endpoint is [http://localhost:5000](http://localhost:5000).
 
-5. Select **Restaurant Owner Sign In / Register** on the welcome page and register an owner account with its restaurant name. Registration signs the owner in and opens the dashboard.
+To use a different backend URL, set `VITE_API_URL` in the frontend environment, for example:
 
-For a deployed frontend on a different origin, set `FRONTEND_ORIGIN` to that exact origin and set `VITE_API_URL` to the backend base URL when building the frontend. The backend uses an HttpOnly JWT cookie; serve the production app over HTTPS.
+```env
+VITE_API_URL=http://localhost:5000
+```
 
-## Owner dashboard features
+For production, set `FRONTEND_ORIGIN` to the exact frontend origin and `VITE_API_URL` to the backend base URL before building:
 
-- **Dashboard:** Live sales and order summary, daily and monthly charts, best-selling food, and recent orders.
-- **Sales:** Switch between daily and monthly revenue. Hover over chart points to see exact LKR values.
-- **Orders:** View recent or all orders, inspect order details, and change status.
-- **Food items:** Add, edit, and delete menu items; update price, image, category, and availability; review item sales.
-- **Staff:** Add, edit, and delete team members grouped by job role.
-- **Profile:** Edit owner and restaurant information, upload a profile picture, and view revenue summaries.
+```sh
+npm run build
+```
 
-Owner endpoints require a valid owner session. Each dashboard query and mutation is scoped to the restaurant assigned to the signed-in owner.
+Serve the production frontend over HTTPS. Production authentication cookies are marked `Secure`.
 
-## API routes
+## User roles
 
-- Authentication: `POST /api/auth/register-owner`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
-- Public restaurant ordering: `GET /api/public/restaurants`, `GET /api/public/restaurants/:slug/menu`, `POST /api/public/restaurants/:slug/orders`
-- Owner dashboard: `GET /api/owner/dashboard`
-- Owner orders: `GET /api/owner/orders`, `GET /api/owner/orders/:orderId`, `PATCH /api/owner/orders/:orderId/status`
-- Owner menu: `GET|POST /api/owner/food-items`, `PATCH|DELETE /api/owner/food-items/:itemId`
-- Owner staff: `GET|POST /api/owner/staff`, `PATCH|DELETE /api/owner/staff/:staffId`
-- Owner profile: `PATCH /api/owner/profile`
+- **Customer:** Can explore the sample menu and prepare an order for review without an administrator or owner login. Real order submission requires a configured restaurant-specific menu.
+- **Owner:** Registers through **Restaurant Owner Sign In / Register** and manages their assigned restaurant.
+- **Manager:** Uses the manager dashboard and permissions for their restaurant.
+- **Kitchen:** Uses the kitchen dashboard to view and update restaurant orders.
+- **Administrator:** Uses the separate Admin Login. An account can be provisioned with the optional `ADMIN_*` environment variables above.
 
-## Security
+Owner, manager, and kitchen access is scoped to the restaurant assigned to the signed-in user. Do not share administrator or owner credentials with customers.
 
-- Keep `JWT_SECRET` and MongoDB credentials private.
-- Use HTTPS in production; production cookies are marked `Secure`.
-- Configure `FRONTEND_ORIGIN` to the frontend origin when frontend and backend are hosted separately.
+## API overview
+
+All API routes are served by the backend.
+
+| Area | Route examples |
+| --- | --- |
+| Authentication | `POST /api/auth/register-owner`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` |
+| Public restaurants and orders | `GET /api/public/restaurants`, `GET /api/public/restaurants/:slug/menu`, `POST /api/public/restaurants/:slug/orders`, `GET /api/public/restaurants/:slug/orders/:orderId` |
+| Owner dashboard | `GET /api/owner/dashboard` |
+| Owner orders | `GET /api/owner/orders`, `GET /api/owner/orders/:orderId`, `PATCH /api/owner/orders/:orderId/status` |
+| Owner menu | `GET|POST /api/owner/food-items`, `PATCH|DELETE /api/owner/food-items/:itemId` |
+| Owner staff and profile | `/api/owner/staff`, `PATCH /api/owner/profile` |
+| Kitchen, manager, and admin | `/api/kitchen`, `/api/manager`, `/api/orders` |
+
+Protected routes require an authenticated user with the appropriate role. See `backend/routes/` for the complete route definitions.
+
+## Project layout
+
+```text
+src/                  React application and customer/admin/owner interfaces
+src/components/       Reusable pages and dashboard components
+backend/config/       Database and administrator setup
+backend/controllers/  Backend business logic
+backend/models/       Mongoose data models
+backend/routes/       Express API routes
+```
+
+## Available scripts
+
+From the project root:
+
+```sh
+npm run dev       # Start the Vite development server
+npm run build     # Build the frontend for production
+npm run preview   # Preview the production build
+npm run lint      # Run Oxlint
+```
+
+From `backend/`:
+
+```sh
+npm run dev       # Start/restart the API during development
+npm start         # Start the API
+```
+
+## Security notes
+
+- Never commit `.env` files, database credentials, or JWT secrets.
+- Use a unique, long `JWT_SECRET` and a strong administrator password.
+- Use HTTPS in production and configure CORS with the exact frontend origin.
+- Protect administrator and owner accounts; their permissions can manage restaurant data.
