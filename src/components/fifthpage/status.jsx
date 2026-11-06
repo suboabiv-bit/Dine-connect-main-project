@@ -5,10 +5,10 @@ import CustomerNavigation from "../CustomerNavigation";
 
 const rs = (n) => "Rs. " + n.toLocaleString("en-US");
 
-const STEP_NAMES = ["Received", "Preparing", "Ready", "Served"];
+const STEP_NAMES = ["Order Received", "Preparing", "Ready", "Served"];
 
 const STEP_MESSAGES = [
-  "Your order reached the kitchen",
+  "Your order has been received by the kitchen",
   "The chef is cooking your food",
   "Ready! A waiter is bringing it to your table",
   "Served. Enjoy your meal!",
@@ -104,18 +104,46 @@ function StatusPage({
                 <div className="status-order-info">
                   <h4 className="status-order-name">{o.name}</h4>
                   <p className="status-order-small">
-                    Order #{o.number} · Placed at {o.time}
+                    Order #{o.number} · Table {o.table} · Placed at {o.time}
                   </p>
+                  {o.restaurantName && (
+                    <p className="status-order-small">{o.restaurantName}</p>
+                  )}
                 </div>
 
                 <div className="status-order-right">
                   <div className="status-order-price">{rs(o.totalAmount ?? o.price * o.qty)}</div>
 
-                  <span className={"status-pill " + (o.step === 3 ? "served" : "")}>
+                  <span className={"status-pill " + (o.statusLabel === "Served" ? "served" : "")}>
                     {o.statusLabel || STEP_NAMES[o.step]}
                   </span>
                 </div>
               </div>
+
+              {o.items.length > 0 && (
+                <ul className="status-order-items">
+                  {o.items.map((item, index) => {
+                    const addOnTotal = (item.addOns || []).reduce((sum, addOn) => sum + addOn.price, 0);
+                    const customizations = [
+                      ...(item.addOns || []).map((addOn) => `+ ${addOn.name}`),
+                      ...(item.removedIngredients || []).map((ingredient) => `No ${ingredient}`),
+                      item.drink && `Drink: ${item.drink}`,
+                      item.specialInstructions && `Note: ${item.specialInstructions}`,
+                    ].filter(Boolean);
+                    return (
+                      <li key={`${o.id}-${item.name}-${index}`}>
+                        <div className="status-order-item-line">
+                          <span>{item.name} × {item.quantity}</span>
+                          <strong>{rs((item.price + addOnTotal) * item.quantity)}</strong>
+                        </div>
+                        {customizations.length > 0 && (
+                          <p>{customizations.join(" · ")}</p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
 
               
               <div className="status-segments">
@@ -124,9 +152,9 @@ function StatusPage({
                     key={name}
                     className={
                       "status-segment " +
-                      (o.step === 3 || i < o.step
+                      (o.statusLabel !== "Cancelled" && (o.step === 3 || i < o.step)
                         ? "done"
-                        : i === o.step
+                        : o.statusLabel !== "Cancelled" && i === o.step
                         ? "current"
                         : "")
                     }

@@ -81,6 +81,19 @@ function OrderPage({
                   <p className="order-item-price">
                     {rs(item.price)} each
                   </p>
+                  {(item.addOns?.length > 0 ||
+                    item.removedIngredients?.length > 0 ||
+                    item.drink ||
+                    item.specialInstructions) && (
+                    <p className="order-item-customization">
+                      {[
+                        ...(item.addOns || []).map((addOn) => `+ ${addOn.name}`),
+                        ...(item.removedIngredients || []).map((ingredient) => `No ${ingredient}`),
+                        item.drink && `Drink: ${item.drink}`,
+                        item.specialInstructions && `Note: ${item.specialInstructions}`,
+                      ].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
                 </div>
 
                 <div className="order-qty-box">

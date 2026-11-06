@@ -179,19 +179,16 @@ function SecondPage({
   const closeCustomize = () => setShowCustomize(false);
 
   const addCustomized = () => {
-    const extraNames = extraOptions
-      .filter((e) => extras.includes(e.id))
-      .map((e) => "+ " + e.name);
-    const parts = [drink, ...extraNames, ...removed.map((r) => "No " + r)];
-    if (note.trim()) parts.push("Note: " + note.trim());
-
-    // the choices are written in the name, so they show in your cart / order page
     onAdd({
-      id: "combo-custom-" + parts.join("|"),
+      id: `custom-${featuredCombo.menuItemId}-${extras.join("-")}-${removed.join("-")}-${drink}-${note.trim()}`,
       menuItemId: featuredCombo?.menuItemId,
-      name: (featuredCombo?.name || "Special Burger Combo") + " (" + parts.join(", ") + ")",
+      name: featuredCombo.name,
       price: customTotal,
       emoji: featuredCombo?.emoji || "🍽️",
+      addOns: extraOptions.filter((extra) => extras.includes(extra.id)),
+      removedIngredients: removed,
+      drink,
+      specialInstructions: note.trim(),
     });
 
     // reset the popup for next time and close it
@@ -214,7 +211,6 @@ function SecondPage({
 
       <section className="sp-hero-title">
         <h1>Today's Specials</h1>
-
       </section>
 
       <section className="sp-featured">
@@ -276,7 +272,11 @@ function SecondPage({
               ⚡ Order Now
             </button>
 
-            <button className="sp-btn-light" disabled={!featuredCombo || loading || !useFallback} onClick={() => setShowCustomize(true)}>
+            <button
+              className="sp-btn-light"
+              disabled={!featuredCombo?.menuItemId || loading}
+              onClick={() => setShowCustomize(true)}
+            >
               Customize
             </button>
           </div>
@@ -363,7 +363,7 @@ function SecondPage({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="cz-head">
-              <h3>Customize your Burger Combo</h3>
+              <h3>Customize {featuredCombo?.name}</h3>
               <button className="cz-close" onClick={closeCustomize} aria-label="Close">
                 ✕
               </button>

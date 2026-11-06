@@ -31,11 +31,6 @@ function FirstPage({
   onStart,
   onAdmin,
   onOwnerLogin,
-  restaurants = [],
-  restaurantsLoading = false,
-  restaurantLoadError = "",
-  selectedRestaurant = "",
-  onSelectRestaurant,
 }) {
   // table number from the QR code link (example: ?table=07)
   const urlTable = twoDigits(new URLSearchParams(window.location.search).get("table"));
@@ -59,15 +54,6 @@ function FirstPage({
 
   // START ORDERING
   const handleStart = () => {
-   
-    console.log("Start Ordering clicked", {
-      onStart,
-      restaurants,
-      restaurantsLoading,
-      restaurantLoadError,
-      selectedRestaurant,
-    });
-
     const t = cleanTable();
     setWarning("");
 
@@ -77,12 +63,7 @@ function FirstPage({
       return;
     }
 
-    
-    if (selectedRestaurant) {
-      onStart(t, selectedRestaurant);
-    } else {
-      onStart(t);
-    }
+    onStart(t);
   };
 
   return (
@@ -157,7 +138,10 @@ function FirstPage({
           {warning && <p className="home-warning">{warning}</p>}
 
           {/* START ORDERING BUTTON */}
-          <button className="home-start-button" onClick={handleStart}>
+          <button
+            className="home-start-button"
+            onClick={handleStart}
+          >
             🍴 Start Ordering →
           </button>
 

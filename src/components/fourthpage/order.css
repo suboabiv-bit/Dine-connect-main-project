@@ -112,6 +112,13 @@
   color: #92877b;
 }
 
+.order-item-customization {
+ margin: 5px 0 0;
+ color: #6f786e;
+ font-size: 11px;
+ line-height: 1.4;
+}
+
 .order-item-total {
   font-weight: 700;
   color: #0f4125;

@@ -83,7 +83,7 @@ function RegistrationPage({ onBack, onSuccess, ownerMode = false }) {
 
         <div className="login-form-wrap">
           <div className="login-logo">
-            <span className="login-logo-icon">🍴</span>
+          
             <b>Dine<span>Connect</span></b>
           </div>
 

@@ -38,6 +38,27 @@ const orderSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "FoodItem",
         },
+        addOns: {
+          type: [{
+            id: String,
+            name: String,
+            price: Number,
+          }],
+          default: [],
+        },
+        removedIngredients: {
+          type: [String],
+          default: [],
+        },
+        drink: {
+          type: String,
+          default: "",
+        },
+        specialInstructions: {
+          type: String,
+          default: "",
+          maxlength: 120,
+        },
       },
     ],
 

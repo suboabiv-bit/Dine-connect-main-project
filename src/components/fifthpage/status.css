@@ -146,6 +146,37 @@
   margin-bottom: 7px;
 }
 
+.status-order-items {
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid #f2eadf;
+  list-style: none;
+}
+
+.status-order-items li + li {
+  margin-top: 12px;
+}
+
+.status-order-item-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #354236;
+  font-size: 12px;
+}
+
+.status-order-item-line strong {
+  color: #0f4125;
+  white-space: nowrap;
+}
+
+.status-order-items li p {
+  margin: 4px 0 0;
+  color: #82776b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 .status-pill {
   display: inline-block;
   background: #fff0d8;

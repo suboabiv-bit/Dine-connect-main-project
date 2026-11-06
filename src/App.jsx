@@ -14,10 +14,11 @@ import ManagerDashboard from "./components/sixthpage/managerDashboard";
 import KitchenDashboard from "./components/sixthpage/kitchenDashboard";
 import TenantOrdering from "./components/ordering/ordering";
 import { API_BASE_URL } from "./config/api";
-import { DEFAULT_ITEMS, normalizeMenuItems } from "./components/thirdpage/menu.js";
+import { DEFAULT_ITEMS } from "./components/thirdpage/menu.js";
 
 const ORDER_STORAGE_KEY = "dineconnect_customer_orders";
 const ORDER_STEP = {
+  "order received": 0,
   pending: 0,
   received: 0,
   preparing: 1,
@@ -62,10 +63,10 @@ const createOrderPlaceholder = ({ id, restaurantSlug }) => ({
   statusLabel: "Loading",
 });
 
-const normalizeOrder = (order, restaurantSlug) => {
+const normalizeOrder = (order, restaurantSlug, restaurantName = "") => {
   const statusLabel = ({
-    Pending: "Received",
-    Received: "Received",
+    Pending: "Order Received",
+    Received: "Order Received",
     Preparing: "Preparing",
     Ready: "Ready",
     Completed: "Served",
@@ -75,11 +76,16 @@ const normalizeOrder = (order, restaurantSlug) => {
     name: item.name,
     quantity: item.quantity,
     price: item.price,
+    addOns: item.addOns || [],
+    removedIngredients: item.removedIngredients || [],
+    drink: item.drink || "",
+    specialInstructions: item.specialInstructions || "",
   }));
   return {
     id: String(order._id),
     orderId: String(order._id),
     restaurantSlug,
+    restaurantName,
     number: order.orderNumber,
     table: order.tableNumber,
     tableNumber: order.tableNumber,
@@ -116,10 +122,7 @@ function App() {
 
   const [table, setTable] = useState("05");
 
-  const [restaurants, setRestaurants] = useState([]);
-  const [restaurantsLoading, setRestaurantsLoading] = useState(true);
-  const [restaurantLoadError, setRestaurantLoadError] = useState("");
-  const [selectedRestaurant, setSelectedRestaurant] = useState(() => readStoredOrders()[0]?.restaurantSlug || "");
+  const [selectedRestaurant, setSelectedRestaurant] = useState("");
 
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState(() => readStoredOrders().map(createOrderPlaceholder));
@@ -131,7 +134,7 @@ function App() {
   const [message, setMessage] = useState("");
 
   const [menuItems, setMenuItems] = useState(DEFAULT_ITEMS);
-  const [menuLoading, setMenuLoading] = useState(() => readStoredOrders().length > 0);
+  const [menuLoading, setMenuLoading] = useState(false);
   const [menuLoadError, setMenuLoadError] = useState("");
   const trackedOrderKey = JSON.stringify(orders
     .filter((order) => order.orderId && order.restaurantSlug)
@@ -167,32 +170,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    let active = true;
-    if (!selectedRestaurant) return () => { active = false; };
-    fetch(`${API_BASE_URL}/api/public/restaurants/${encodeURIComponent(selectedRestaurant)}/menu`)
-      .then(async (response) => {
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Unable to load restaurant menu.");
-        if (!Array.isArray(result.menu)) throw new Error("The restaurant menu response is invalid.");
-        return result.menu;
-      })
-      .then((items) => {
-        if (!active) return;
-        setMenuItems(normalizeMenuItems(items));
-      })
-      .catch((error) => {
-        if (!active) return;
-        setMenuItems(DEFAULT_ITEMS);
-        setMenuLoadError(`${error.message} Showing sample menu.`);
-      })
-      .finally(() => {
-        if (active) setMenuLoading(false);
-      });
-
-    return () => { active = false; };
-  }, [selectedRestaurant]);
-
-  useEffect(() => {
     const savedOrders = JSON.parse(trackedOrderKey);
     if (!savedOrders.length) return undefined;
     let active = true;
@@ -204,7 +181,7 @@ function App() {
           );
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || `Unable to load order #${savedOrder.id}.`);
-          return normalizeOrder(result.order, savedOrder.restaurantSlug);
+          return normalizeOrder(result.order, savedOrder.restaurantSlug, result.restaurantName || "");
         }));
         if (!active) return;
         const restored = results.map((result) => result.status === "fulfilled"
@@ -235,36 +212,9 @@ function App() {
     };
   }, [trackedOrderKey]);
 
-  // Load restaurants
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/public/restaurants`, {
-      credentials: "include"
-    })
-      .then(async (response) => {
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.message || "Unable to load restaurants.");
-        }
-
-        return result.restaurants;
-      })
-      .then((list) => {
-        setRestaurants(list);
-        setRestaurantLoadError("");
-      })
-      .catch(() => {
-        setRestaurantLoadError(
-          "Restaurant selection is unavailable. Check API and MongoDB."
-        );
-      })
-      .finally(() => {
-        setRestaurantsLoading(false);
-      });
-  }, []);
-
   // Add food to cart
   const addToCart = (item) => {
+    setOrderError("");
     setCart((old) => {
       const existingItem = old.find((i) => i.id === item.id);
 
@@ -289,6 +239,14 @@ function App() {
       setOrderError("Select menu items before placing your order.");
       return;
     }
+    if (!selectedRestaurant) {
+      setOrderError("Restaurant ordering is temporarily unavailable. Please try again later.");
+      return;
+    }
+    if (items.some((item) => !item.menuItemId)) {
+      setOrderError("The selected menu items are unavailable. Please return to the menu and try again.");
+      return;
+    }
 
     setSubmittingOrder(true);
     try {
@@ -302,14 +260,27 @@ function App() {
             items: items.map((item) => ({
               menuItemId: item.menuItemId,
               quantity: item.qty,
+              addOns: (item.addOns || []).map((addOn) => (
+                typeof addOn === "string" ? addOn : addOn.id
+              )),
+              removedIngredients: item.removedIngredients || [],
+              drink: item.drink || "",
+              specialInstructions: item.specialInstructions || "",
             })),
           }),
         }
       );
+      if (!response.headers.get("content-type")?.includes("application/json")) {
+        throw new Error("The ordering service returned an unexpected response. Please check that it is running and try again.");
+      }
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Unable to place your order.");
 
-      const placedOrder = normalizeOrder(result.order, selectedRestaurant);
+      const placedOrder = normalizeOrder(
+        result.order,
+        selectedRestaurant,
+        result.restaurantName || ""
+      );
       setOrdersError("");
       try {
         saveOrderReferences([...orders, placedOrder]);
@@ -327,7 +298,10 @@ function App() {
     }
   };
 
-  const orderNow = (item) => submitOrder([{ ...item, qty: 1 }]);
+  const orderNow = (item) => {
+    addToCart(item);
+    setPage("order");
+  };
 
   // Change quantity
   const changeQty = (id, amount) => {
@@ -411,26 +385,15 @@ function App() {
     setMenuItems((old) => [...old, item]);
   };
 
-  const selectRestaurant = (restaurantSlug) => {
-    if (restaurantSlug === selectedRestaurant) return;
-    setSelectedRestaurant(restaurantSlug);
-    if (restaurantSlug) {
-      setMenuLoading(true);
-      setMenuLoadError("");
-    } else {
-      setMenuItems(DEFAULT_ITEMS);
-      setMenuLoading(false);
-      setMenuLoadError("");
-    }
-  };
-
   // Start customer ordering
-  const handleStart = (tableNumber, restaurantSlug) => {
+  const handleStart = (tableNumber) => {
     setTable(tableNumber);
-    if (restaurantSlug) {
-      selectRestaurant(restaurantSlug);
-    }
-    setPage("second");
+    setOrderError("");
+    setSelectedRestaurant("");
+    setMenuItems(DEFAULT_ITEMS);
+    setMenuLoading(false);
+    setMenuLoadError("");
+    setPage("menu");
   };
 
   // Admin access
@@ -599,7 +562,7 @@ function App() {
         cartCount={cartCount}
         onClearServed={clearServed}
         onNavigate={setPage}
-        onBack={() => setPage("first")}
+        onBack={() => setPage("second")}
       />
     );
   }
@@ -617,7 +580,7 @@ function App() {
         error={orderError}
         cartCount={cartCount}
         onNavigate={setPage}
-        onBack={() => setPage("first")}
+        onBack={() => setPage("second")}
       />
     );
   }
@@ -648,7 +611,7 @@ function App() {
         loading={menuLoading}
         error={menuLoadError}
         orderError={orderError}
-        useFallback={Boolean(menuLoadError) || !selectedRestaurant}
+        useFallback={!selectedRestaurant}
         onAdd={addToCart}
         onOrderNow={orderNow}
         onBack={() => setPage("first")}
@@ -664,11 +627,6 @@ function App() {
         onStart={handleStart}
         onAdmin={openAdmin}
         onOwnerLogin={openOwnerLogin}
-        restaurants={restaurants}
-        restaurantsLoading={restaurantsLoading}
-        restaurantLoadError={restaurantLoadError}
-        selectedRestaurant={selectedRestaurant}
-        onSelectRestaurant={selectRestaurant}
       />
     );
   }

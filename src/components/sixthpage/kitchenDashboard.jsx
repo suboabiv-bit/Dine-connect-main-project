@@ -82,10 +82,12 @@ function KitchenDashboard({ user, onLogout }) {
           <div className="mg-order-card" key={order._id}>
             <div className="mg-order-info">
               <h4>Order #{order.orderNumber} · Table {order.tableNumber}</h4>
-              {order.items.map((item) => (
-                <p key={`${order._id}-${item.menuItemId}`}>
+              {order.items.map((item, index) => (
+                <p key={`${order._id}-${item.menuItemId}-${index}`}>
                   {item.name} × {item.quantity}
-                  {item.customization && ` · ${item.customization}`}
+                  {item.addOns?.length > 0 && ` · Extras: ${item.addOns.map((addOn) => addOn.name).join(", ")}`}
+                  {item.removedIngredients?.length > 0 && ` · No ${item.removedIngredients.join(", ")}`}
+                  {item.drink && ` · Drink: ${item.drink}`}
                   {item.specialInstructions && ` · Note: ${item.specialInstructions}`}
                 </p>
               ))}
